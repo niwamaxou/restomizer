@@ -10,7 +10,7 @@ internal class RestaurantControllerAbstractedTest {
     
     @Test
     fun `should get the restaurants`() {
-        val restaurantController = RestaurantController(RestaurantHashMapRepositoryImpl())
+        val restaurantController = RestaurantController()
         val restaurants = restaurantController.findAll()
         runBlocking {
             restaurants.collect {
