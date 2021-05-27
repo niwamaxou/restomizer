@@ -15,7 +15,9 @@ class RestaurantController @Autowired constructor(val restaurantHashMapRepositor
     @GetMapping("")
     fun findAll(): Flow<List<Restaurant>> = this.restaurantHashMapRepository.findAll()
 
+    @GetMapping("/{id}")
+    fun findOne(@PathVariable id : String): Flow<Restaurant> = this.restaurantHashMapRepository.findOne(id)
+    
     @PostMapping("")
     fun save(@RequestBody restaurant : Restaurant) = this.restaurantHashMapRepository.save(restaurant)
-    
 }

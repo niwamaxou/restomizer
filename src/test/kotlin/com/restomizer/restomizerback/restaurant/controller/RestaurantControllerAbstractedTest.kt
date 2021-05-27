@@ -27,10 +27,25 @@ internal class RestaurantControllerAbstractedTest {
     }
 
     @Test
+    fun `should get one restaurant`() {
+        val restaurantHashMapRepository = RestaurantHashMapRepositoryImpl()
+        val restaurantTest1 = Restaurant("test 1")
+        restaurantHashMapRepository.save(restaurantTest1)
+        val restaurantController = RestaurantController(restaurantHashMapRepository)
+        val flowRestaurant = restaurantController.findOne(restaurantTest1.id)
+        runBlocking {
+            flowRestaurant.collect { r ->
+                assertThat(r).isEqualTo(restaurantTest1)
+            }
+        }
+    }
+
+    @Test
     fun `should save a restaurant`() {
         val restaurantHashMapRepository = RestaurantHashMapRepositoryImpl()
         val restaurant = Restaurant("Auberge des 3 renards")
-        restaurantHashMapRepository.save(restaurant)
+        val restaurantController = RestaurantController(restaurantHashMapRepository)
+        restaurantController.save(restaurant)
         val flowRestaurantExpected = restaurantHashMapRepository.findOne(restaurant.id)
         runBlocking {
             flowRestaurantExpected.collect { r ->
