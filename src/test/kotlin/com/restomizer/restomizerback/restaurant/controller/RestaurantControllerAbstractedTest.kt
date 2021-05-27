@@ -1,7 +1,9 @@
 package com.restomizer.restomizerback.restaurant.controller
 
+import com.restomizer.restomizerback.restaurant.exception.RestomizerException
 import com.restomizer.restomizerback.restaurant.model.Restaurant
 import com.restomizer.restomizerback.restaurant.repository.RestaurantHashMapRepositoryImpl
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
@@ -36,6 +38,20 @@ internal class RestaurantControllerAbstractedTest {
         runBlocking {
             flowRestaurant.collect { r ->
                 assertThat(r).isEqualTo(restaurantTest1)
+            }
+        }
+    }
+
+    @Test
+    fun `should throw an exception when restaurant isn't in base`() {
+        val restaurantHashMapRepository = RestaurantHashMapRepositoryImpl()
+        val restaurantController = RestaurantController(restaurantHashMapRepository)
+        val flowRestaurant = restaurantController.findOne("invalid-id")
+        runBlocking {
+            flowRestaurant.catch { e ->
+                assertThat(e)
+                    .isInstanceOf(RestomizerException::class.java)
+                    .hasMessage("No restaurant found with id [invalid-id]")
             }
         }
     }

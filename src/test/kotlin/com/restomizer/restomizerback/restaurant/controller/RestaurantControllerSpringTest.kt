@@ -40,4 +40,10 @@ internal class RestaurantControllerSpringTest(
             .jsonPath("$..name").isEqualTo("test 3")
             .jsonPath("$..id").isEqualTo(restaurantTest3.id)
     }
+    
+    @Test
+    fun `should be a Bad Request when restaurant doesn't exist`() {
+        client.get().uri("/restomizer/v1/restaurants/invalid-id").exchange()
+            .expectStatus().isBadRequest
+    }
 }
