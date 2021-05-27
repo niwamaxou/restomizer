@@ -1,0 +1,7 @@
+server:
+  port: 9666
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
