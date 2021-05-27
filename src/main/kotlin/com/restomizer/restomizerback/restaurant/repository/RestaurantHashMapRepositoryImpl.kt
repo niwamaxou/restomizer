@@ -1,6 +1,7 @@
 package com.restomizer.restomizerback.restaurant.repository
 
 import com.restomizer.restomizerback.restaurant.exception.RestomizerException
+import com.restomizer.restomizerback.restaurant.exception.RestomizerNotFoundException
 import com.restomizer.restomizerback.restaurant.model.Restaurant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -19,7 +20,7 @@ class RestaurantHashMapRepositoryImpl : RestaurantHashMapRepository {
 
     override fun findOne(id: String): Flow<Restaurant> {
         return flow {
-            val restaurant = restaurantMap[id] ?: throw RestomizerException("No restaurant found with id [$id]")
+            val restaurant = restaurantMap[id] ?: throw RestomizerNotFoundException("No restaurant found with id [$id]")
             emit(restaurant)
         }
     }

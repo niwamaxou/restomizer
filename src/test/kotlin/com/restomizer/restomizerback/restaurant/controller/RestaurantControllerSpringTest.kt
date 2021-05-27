@@ -44,6 +44,6 @@ internal class RestaurantControllerSpringTest(
     @Test
     fun `should be a Bad Request when restaurant doesn't exist`() {
         client.get().uri("/restomizer/v1/restaurants/invalid-id").exchange()
-            .expectStatus().isBadRequest
+            .expectStatus().isNotFound
     }
 }

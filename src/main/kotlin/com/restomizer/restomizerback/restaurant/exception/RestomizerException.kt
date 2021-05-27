@@ -1,3 +1,3 @@
 package com.restomizer.restomizerback.restaurant.exception
 
-class RestomizerException(message: String?) : Exception(message)
+open class RestomizerException(message: String?) : Exception(message)

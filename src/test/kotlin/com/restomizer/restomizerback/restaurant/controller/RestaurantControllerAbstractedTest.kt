@@ -1,6 +1,7 @@
 package com.restomizer.restomizerback.restaurant.controller
 
 import com.restomizer.restomizerback.restaurant.exception.RestomizerException
+import com.restomizer.restomizerback.restaurant.exception.RestomizerNotFoundException
 import com.restomizer.restomizerback.restaurant.model.Restaurant
 import com.restomizer.restomizerback.restaurant.repository.RestaurantHashMapRepositoryImpl
 import kotlinx.coroutines.flow.catch
@@ -50,7 +51,7 @@ internal class RestaurantControllerAbstractedTest {
         runBlocking {
             flowRestaurant.catch { e ->
                 assertThat(e)
-                    .isInstanceOf(RestomizerException::class.java)
+                    .isInstanceOf(RestomizerNotFoundException::class.java)
                     .hasMessage("No restaurant found with id [invalid-id]")
             }
         }
