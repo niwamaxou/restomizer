@@ -15,6 +15,7 @@
     <properties>
         <java.version>16</java.version>
         <kotlin.version>1.5.0</kotlin.version>
+        <pitest.version>1.6.6</pitest.version>
     </properties>
     <dependencies>
         <dependency>
@@ -100,6 +101,18 @@
                         <groupId>org.jetbrains.kotlin</groupId>
                         <artifactId>kotlin-maven-allopen</artifactId>
                         <version>${kotlin.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.pitest</groupId>
+                <artifactId>pitest-maven</artifactId>
+                <version>${pitest.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.pitest</groupId>
+                        <artifactId>pitest-junit5-plugin</artifactId>
+                        <version>0.14</version>
                     </dependency>
                 </dependencies>
             </plugin>
