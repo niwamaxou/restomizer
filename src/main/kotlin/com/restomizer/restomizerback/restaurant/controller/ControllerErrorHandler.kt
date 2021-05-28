@@ -9,14 +9,14 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 @ControllerAdvice
 class ControllerErrorHandler {
 
-    @ExceptionHandler()
-    fun handleError(exception : Exception) : ResponseEntity<String> {
-        
+    @ExceptionHandler
+    fun handleError(exception: Exception): ResponseEntity<String> {
+
         if (exception is RestomizerNotFoundException) {
             return ResponseEntity("not found", HttpStatus.NOT_FOUND)
         }
-        
+
         return ResponseEntity("exception", HttpStatus.BAD_REQUEST)
     }
-    
+
 }

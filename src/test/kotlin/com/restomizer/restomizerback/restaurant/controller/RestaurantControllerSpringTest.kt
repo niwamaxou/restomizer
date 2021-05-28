@@ -2,6 +2,8 @@ package com.restomizer.restomizerback.restaurant.controller
 
 import com.restomizer.restomizerback.restaurant.model.Restaurant
 import com.restomizer.restomizerback.restaurant.repository.RestaurantHashMapRepositoryImpl
+import com.restomizer.restomizerback.restaurant.service.RandomizerServiceImpl
+import com.restomizer.restomizerback.restaurant.service.RestaurantService
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -14,7 +16,7 @@ import reactor.core.publisher.Mono
 
 @ExtendWith(SpringExtension::class)
 @WebFluxTest(controllers = [RestaurantController::class])
-@Import(value = [RestaurantHashMapRepositoryImpl::class])
+@Import(value = [RestaurantService::class, RandomizerServiceImpl::class, RestaurantHashMapRepositoryImpl::class])
 internal class RestaurantControllerSpringTest(
     @Autowired val client: WebTestClient
 ) {
@@ -37,10 +39,17 @@ internal class RestaurantControllerSpringTest(
             .expectBody().jsonPath("$..name").value(containsInAnyOrder("test 1", "test 2", "test 3"))
         client.get().uri("/restomizer/v1/restaurants/${restaurantTest3.id}").exchange()
             .expectBody()
-            .jsonPath("$..name").isEqualTo("test 3")
-            .jsonPath("$..id").isEqualTo(restaurantTest3.id)
+            .jsonPath("$.length()").isEqualTo(1)
+            .jsonPath("$[0].name").isEqualTo("test 3")
+            .jsonPath("$[0].id").isEqualTo(restaurantTest3.id)
+        client.get().uri("/restomizer/v1/random/restaurants/").exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.length()").isEqualTo(1)
+            // https://stackoverflow.com/questions/49149376/webtestclient-check-that-jsonpath-contains-sub-string
+            .jsonPath("$[0].[?(@.name =~ /.*test.*/)].name").hasJsonPath()
     }
-    
+
     @Test
     fun `should be a Bad Request when restaurant doesn't exist`() {
         client.get().uri("/restomizer/v1/restaurants/invalid-id").exchange()
