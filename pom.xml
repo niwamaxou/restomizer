@@ -115,6 +115,15 @@
                         <version>0.14</version>
                     </dependency>
                 </dependencies>
+                <configuration>
+                    <excludedClasses>
+                        <param>com.restomizer.restomizerback.RestomizerBackApplicationKt*</param>
+                    </excludedClasses>
+                    <avoidCallsTo>
+                        <avoidCallsTo>kotlin.jvm.internal</avoidCallsTo>
+                        <avoidCallsTo>kotlinx.coroutines</avoidCallsTo>
+                    </avoidCallsTo>
+                </configuration>
             </plugin>
         </plugins>
     </build>
