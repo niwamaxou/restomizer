@@ -26,7 +26,9 @@ class RestaurantHashMapRepositoryImpl : RestaurantRepository {
         }
     }
 
-    override fun save(restaurant: Restaurant) {
-        restaurantMap[restaurant.id] = restaurant
+    override fun save(restaurant: Restaurant): Restaurant {
+        restaurant.generateId()
+        restaurantMap[restaurant.getId()] = restaurant
+        return restaurant
     }
 }

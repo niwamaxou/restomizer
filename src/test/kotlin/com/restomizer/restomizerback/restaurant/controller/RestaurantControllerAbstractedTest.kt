@@ -2,7 +2,6 @@ package com.restomizer.restomizerback.restaurant.controller
 
 import com.restomizer.restomizerback.restaurant.exception.RestomizerNotFoundException
 import com.restomizer.restomizerback.restaurant.model.Restaurant
-import com.restomizer.restomizerback.restaurant.repository.RestaurantHashMapRepositoryImpl
 import com.restomizer.restomizerback.restaurant.repository.RestaurantRepository
 import com.restomizer.restomizerback.restaurant.service.RandomizerService
 import com.restomizer.restomizerback.restaurant.service.RestaurantService
@@ -13,44 +12,39 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.util.*
+import kotlin.collections.HashMap
 
 internal class RestaurantControllerAbstractedTest {
 
     @Test
     fun `should get the restaurants`() {
-        val restaurantHashMapRepository = RestaurantHashMapRepositoryImpl()
-        val restaurantTest1 = Restaurant("test 1")
-        val restaurantTest2 = Restaurant("test 2")
-        restaurantHashMapRepository.save(restaurantTest1)
-        restaurantHashMapRepository.save(restaurantTest2)
-        val restaurantController = RestaurantController(RestaurantService(restaurantHashMapRepository, StubRandomizerServiceImpl()))
+        val restaurantController = RestaurantController(RestaurantService(StubRestaurantRepositoryImpl(), StubRandomizerServiceImpl()))
         val restaurants = restaurantController.findAll()
         runBlocking {
             restaurants.collect { lr ->
                 assertThat(lr).extracting("name")
-                    .contains("test 1", "test 2")
+                    .contains("test-1", "test-2", "test-3")
             }
         }
     }
 
     @Test
     fun `should get one restaurant`() {
-        val restaurantHashMapRepository = RestaurantHashMapRepositoryImpl()
-        val restaurantTest1 = Restaurant("test 1")
-        restaurantHashMapRepository.save(restaurantTest1)
-        val restaurantController = RestaurantController(RestaurantService(restaurantHashMapRepository, StubRandomizerServiceImpl()))
-        val flowRestaurant = restaurantController.findOne(restaurantTest1.id)
+        val stubRestaurantRepositoryImpl = StubRestaurantRepositoryImpl()
+        val restaurantController = RestaurantController(RestaurantService(stubRestaurantRepositoryImpl, StubRandomizerServiceImpl()))
+        val flowRestaurant = restaurantController.findOne("test-1-id")
         runBlocking {
             flowRestaurant.collect { r ->
-                assertThat(r).isEqualTo(restaurantTest1)
+                assertThat(r.name).isEqualTo("test-1")
+                assertThat(r.getId()).isEqualTo("test-1-id")
             }
         }
     }
 
     @Test
     fun `should throw an exception when restaurant isn't in base`() {
-        val restaurantHashMapRepository = RestaurantHashMapRepositoryImpl()
-        val restaurantController = RestaurantController(RestaurantService(restaurantHashMapRepository, StubRandomizerServiceImpl()))
+        val restaurantController = RestaurantController(RestaurantService(StubRestaurantRepositoryImpl(), StubRandomizerServiceImpl()))
         val flowRestaurant = restaurantController.findOne("invalid-id")
         runBlocking {
             flowRestaurant.catch { e ->
@@ -63,36 +57,22 @@ internal class RestaurantControllerAbstractedTest {
 
     @Test
     fun `should save a restaurant`() {
-        val restaurantHashMapRepository = RestaurantHashMapRepositoryImpl()
-        val restaurant = Restaurant("test 1")
-        val restaurantController = RestaurantController(RestaurantService(restaurantHashMapRepository, StubRandomizerServiceImpl()))
+        val stubRestaurantRepositoryImpl = StubRestaurantRepositoryImpl()
+        val restaurant = Restaurant("test-saved")
+        val restaurantController = RestaurantController(RestaurantService(stubRestaurantRepositoryImpl, StubRandomizerServiceImpl()))
         restaurantController.save(restaurant)
-        val flowRestaurantExpected = restaurantHashMapRepository.findOne(restaurant.id)
-        runBlocking {
-            flowRestaurantExpected.collect { r ->
-                assertThat(r).isEqualTo(restaurant)
-            }
-        }
+        val savedRestaurant = stubRestaurantRepositoryImpl.getSavedRestaurant()
+        assertThat(savedRestaurant.name).isEqualTo("test-saved")
     }
 
     @Test
     fun `should get a random restaurant`() {
-        val restaurantHashMapRepository = RestaurantHashMapRepositoryImpl()
-        val restaurant1 = Restaurant("test 1")
-        val restaurant2 = Restaurant("test 2")
-        val restaurant3 = Restaurant("test 3")
-        val restaurant4 = Restaurant("test 4")
-        val restaurant5 = Restaurant("test 5")
-        restaurantHashMapRepository.save(restaurant1)
-        restaurantHashMapRepository.save(restaurant2)
-        restaurantHashMapRepository.save(restaurant3)
-        restaurantHashMapRepository.save(restaurant4)
-        restaurantHashMapRepository.save(restaurant5)
         val restaurantController = RestaurantController(RestaurantService(StubRestaurantRepositoryImpl(), StubRandomizerServiceImpl()))
         val flowRestaurantExpected = restaurantController.getOneRandomRestaurant()
         runBlocking {
             flowRestaurantExpected.collect { r ->
-                assertThat(r).isEqualTo(restaurant2)
+                assertThat(r.name).isEqualTo("test-2")
+                assertThat(r.getId()).isEqualTo("test-2-id")
             }
         }
     }
@@ -104,25 +84,44 @@ internal class RestaurantControllerAbstractedTest {
     }
 
     class StubRestaurantRepositoryImpl : RestaurantRepository {
+
+        private val restaurantMap: HashMap<String, Restaurant> = HashMap<String, Restaurant>()
+        private val restaurantSortedMap: SortedMap<String, Restaurant>
+        private var savedRestaurant : Restaurant? = null
+        
+        init {
+            val restaurant1 = Restaurant("test-1")
+            restaurant1.generateId()
+            val restaurant2 = Restaurant("test-2")
+            restaurant2.generateId()
+            val restaurant3 = Restaurant("test-3")
+            restaurant3.generateId()
+            restaurantMap["test-1-id"] = restaurant1
+            restaurantMap["test-2-id"] = restaurant2
+            restaurantMap["test-3-id"] = restaurant3
+            restaurantSortedMap = restaurantMap.toSortedMap()
+        }
+
         override fun findAll(): Flow<List<Restaurant>> {
-            val restaurants = listOf<Restaurant>(
-                Restaurant("test 1"),
-                Restaurant("test 2"),
-                Restaurant("test 3"),
-                Restaurant("test 4"),
-                Restaurant("test 5")
-            )
             return flow {
-                emit(restaurants)
+                emit(restaurantSortedMap.values.toList())
             }
         }
 
         override fun findOne(id: String): Flow<Restaurant> {
-            TODO("Not yet implemented")
+            return flow {
+                val restaurant = restaurantSortedMap[id] ?: throw RestomizerNotFoundException("No restaurant found with id [$id]")
+                emit(restaurant)
+            }
         }
 
-        override fun save(restaurant: Restaurant) {
-            TODO("Not yet implemented")
+        override fun save(restaurant: Restaurant): Restaurant {
+            this.savedRestaurant = restaurant
+            return restaurant
+        }
+
+        fun getSavedRestaurant(): Restaurant {
+            return this.savedRestaurant!!
         }
     }
 }

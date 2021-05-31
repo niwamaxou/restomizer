@@ -40,60 +40,43 @@ internal class RestaurantControllerSpringTest(
     @Test
     fun `should save a restaurant`() {
         client.post().uri("/restomizer/v1/restaurants/")
-            .body(Mono.just(Restaurant("test 2")), Restaurant::class.java)
+            .body(Mono.just(Restaurant("test-2")), Restaurant::class.java)
             .exchange().expectStatus().isOk
-        restaurantRepository.checkSavedRestaurant("test 2")
+        restaurantRepository.checkSavedRestaurant("test-2")
     }
 
     @Test
     fun `should find a restaurant`() {
-        val restaurant = Restaurant("test 42")
-        restaurantRepository.doReturnWhenFindOne(restaurant)
-        client.get().uri("/restomizer/v1/restaurants/${restaurant.id}").exchange()
+        restaurantRepository.prepareRestaurantToReturnWhenFound("test-42")
+        client.get().uri("/restomizer/v1/restaurants/test-42-id").exchange()
             .expectBody()
             .jsonPath("$.length()").isEqualTo(1)
-            .jsonPath("$[0].name").isEqualTo("test 42")
-            .jsonPath("$[0].id").isEqualTo(restaurant.id)
+            .jsonPath("$[0].name").isEqualTo("test-42")
+            .jsonPath("$[0].id").isEqualTo("test-42-id")
     }
 
     @Test
     fun `should find all restaurants`() {
-        val restaurant1 = Restaurant("test 1")
-        val restaurant2 = Restaurant("test 2")
-        val restaurant3 = Restaurant("test 3")
-        val restaurants = listOf<Restaurant>(
-            restaurant1,
-            restaurant2,
-            restaurant3,
-        )
-        restaurantRepository.prepareListOfRestaurants(restaurants)
+        restaurantRepository.prepareListOfRestaurants("test-1", "test-2", "test-3")
         client.get().uri("/restomizer/v1/restaurants/").exchange()
             .expectBody()
-            .jsonPath("$[0][0].name").isEqualTo("test 1")
-            .jsonPath("$[0][0].id").isEqualTo(restaurant1.id)
-            .jsonPath("$[0][1].name").isEqualTo("test 2")
-            .jsonPath("$[0][1].id").isEqualTo(restaurant2.id)
-            .jsonPath("$[0][2].name").isEqualTo("test 3")
-            .jsonPath("$[0][2].id").isEqualTo(restaurant3.id)
+            .jsonPath("$[0][0].name").isEqualTo("test-1")
+            .jsonPath("$[0][0].id").isEqualTo("test-1-id")
+            .jsonPath("$[0][1].name").isEqualTo("test-2")
+            .jsonPath("$[0][1].id").isEqualTo("test-2-id")
+            .jsonPath("$[0][2].name").isEqualTo("test-3")
+            .jsonPath("$[0][2].id").isEqualTo("test-3-id")
     }
 
     @Test
     fun `should find a random restaurant`() {
-        val restaurant1 = Restaurant("test42")
-        val restaurant2 = Restaurant("test43")
-        val restaurant3 = Restaurant("test44")
-        val restaurants = listOf<Restaurant>(
-            restaurant1,
-            restaurant2,
-            restaurant3,
-        )
-        restaurantRepository.prepareListOfRestaurants(restaurants)
+        restaurantRepository.prepareListOfRestaurants("test-42", "test-43", "test-43")
         val returnResult = client.get().uri("/restomizer/v1/random/restaurants").exchange()
             .expectStatus().isOk
             .returnResult(Restaurant::class.java)
         runBlocking {
             returnResult.responseBody.collect { r ->
-                assertThat(r.name.split(" ")).containsAnyOf("test42", "test43", "test44")    
+                assertThat(r.name.split(" ")).containsAnyOf("test-42", "test-43", "test-44")    
             }
         }
     }
@@ -109,18 +92,25 @@ internal class RestaurantControllerSpringTest(
     class MockRestaurantRepositoryImpl : RestaurantRepository {
 
         var restaurant: Restaurant = Restaurant("default")
-        var restaurants: List<Restaurant> = listOf()
+        val restaurants: MutableList<Restaurant> = mutableListOf()
 
-        fun doReturnWhenFindOne(restaurant: Restaurant) {
-            this.restaurant = restaurant
+        fun prepareRestaurantToReturnWhenFound(name: String) {
+            val temporaryRestaurant = Restaurant(name)
+            temporaryRestaurant.generateId()
+            restaurant = temporaryRestaurant
         }
 
         fun checkSavedRestaurant(name: String) {
             assertThat(restaurant.name).isEqualTo(name)
         }
 
-        fun prepareListOfRestaurants(restaurants: List<Restaurant>) {
-            this.restaurants = restaurants
+        fun prepareListOfRestaurants(vararg names: String) {
+            this.restaurants.clear()
+            for (name in names) {
+                val resto = Restaurant(name)
+                resto.generateId()
+                this.restaurants.add(resto)
+            }
         }
 
         override fun findAll(): Flow<List<Restaurant>> {
@@ -134,14 +124,15 @@ internal class RestaurantControllerSpringTest(
                 throw RestomizerNotFoundException("not found")
             }
             return flow {
-                if (restaurant.id == id) {
+                if (restaurant.getId() == id) {
                     emit(restaurant)
                 }
             }
         }
 
-        override fun save(restaurant: Restaurant) {
+        override fun save(restaurant: Restaurant): Restaurant {
             this.restaurant = restaurant
+            return restaurant
         }
     }
 }

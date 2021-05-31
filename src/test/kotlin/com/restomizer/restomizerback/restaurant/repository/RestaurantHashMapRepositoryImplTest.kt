@@ -13,9 +13,9 @@ internal class RestaurantHashMapRepositoryImplTest {
     @Test
     fun `should save a restaurant and find it`() {
         val restaurantHashMapRepository = RestaurantHashMapRepositoryImpl()
-        val restaurant = Restaurant("test 1")
+        val restaurant = Restaurant("test-1")
         restaurantHashMapRepository.save(restaurant)
-        val flowRestaurantExpected = restaurantHashMapRepository.findOne(restaurant.id)
+        val flowRestaurantExpected = restaurantHashMapRepository.findOne("test-1-id")
         runBlocking {
             flowRestaurantExpected.collect { r ->
                 assertThat(r).isEqualTo(restaurant)
@@ -26,7 +26,7 @@ internal class RestaurantHashMapRepositoryImplTest {
     @Test
     fun `should throw notFoundException if no restaurant is found`() {
         val restaurantHashMapRepository = RestaurantHashMapRepositoryImpl()
-        val restaurant = Restaurant("test 1")
+        val restaurant = Restaurant("test-1")
         restaurantHashMapRepository.save(restaurant)
         val flowShouldThrowAnException = restaurantHashMapRepository.findOne("fake-id")
         runBlocking {
@@ -42,9 +42,9 @@ internal class RestaurantHashMapRepositoryImplTest {
     @Test
     fun `should find all restaurant`() {
         val restaurantHashMapRepository = RestaurantHashMapRepositoryImpl()
-        val restaurant1 = Restaurant("test 1")
-        val restaurant2 = Restaurant("test 2")
-        val restaurant3 = Restaurant("test 3")
+        val restaurant1 = Restaurant("test-1")
+        val restaurant2 = Restaurant("test-2")
+        val restaurant3 = Restaurant("test-3")
         restaurantHashMapRepository.save(restaurant1)
         restaurantHashMapRepository.save(restaurant2)
         restaurantHashMapRepository.save(restaurant3)
@@ -52,7 +52,7 @@ internal class RestaurantHashMapRepositoryImplTest {
         runBlocking {
             flowRestaurantsExpected.collect { lr ->
                 assertThat(lr).extracting("name")
-                    .contains("test 1", "test 2", "test 3")
+                    .contains("test-1", "test-2", "test-3")
             }
         }
     }

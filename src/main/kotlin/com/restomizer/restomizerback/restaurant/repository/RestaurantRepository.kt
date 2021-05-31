@@ -7,5 +7,5 @@ interface RestaurantRepository {
 
     fun findAll(): Flow<List<Restaurant>>
     fun findOne(id: String): Flow<Restaurant>
-    fun save(restaurant: Restaurant)
+    fun save(restaurant: Restaurant): Restaurant
 }
