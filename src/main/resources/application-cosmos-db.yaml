@@ -1,0 +1,12 @@
+server:
+  port: 9666
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+spring:
+    data:
+      mongodb:
+        database: ${cosmos-db-name}
+        uri: ${cosmos-db-connectionstring}

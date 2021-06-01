@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 
 @Service
-@Profile("test")
+@Profile("hashMap")
 class RestaurantHashMapRepositoryImpl : RestaurantRepository {
 
     private val restaurantMap: HashMap<String, Restaurant> = HashMap()
