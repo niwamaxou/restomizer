@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.context.annotation.Import
 import org.springframework.http.ResponseEntity
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import reactor.core.publisher.Mono
@@ -28,6 +29,7 @@ import reactor.core.publisher.Mono
         RestaurantHashMapRepositoryImpl::class
     ]
 )
+@ActiveProfiles("test")
 internal class RestaurantControllerSpringTest(
     @Autowired val client: WebTestClient
 ) {
@@ -37,13 +39,13 @@ internal class RestaurantControllerSpringTest(
 
         val objectMapper = ObjectMapper()
         val restaurant1Returned = client.post().uri("/restomizer/v1/restaurants/")
-            .body(Mono.just(Restaurant("test-1")), Restaurant::class.java)
+            .body(Mono.just(Restaurant(name = "test-1")), Restaurant::class.java)
             .exchange().expectStatus().isOk.returnResult(ResponseEntity::class.java)
         val restaurant2Returned = client.post().uri("/restomizer/v1/restaurants/")
-            .body(Mono.just(Restaurant("test-2")), Restaurant::class.java)
+            .body(Mono.just(Restaurant(name = "test-2")), Restaurant::class.java)
             .exchange().expectStatus().isOk.returnResult(Restaurant::class.java)
         val restaurant3Returned = client.post().uri("/restomizer/v1/restaurants/")
-            .body(Mono.just(Restaurant("test-3")), Restaurant::class.java)
+            .body(Mono.just(Restaurant(name = "test-3")), Restaurant::class.java)
             .exchange().expectStatus().isOk.returnResult(Restaurant::class.java)
         val restaurant1 = objectMapper.readValue(restaurant1Returned.responseBodyContent, Restaurant::class.java)
         val restaurant2 = objectMapper.readValue(restaurant2Returned.responseBodyContent, Restaurant::class.java)
@@ -51,8 +53,8 @@ internal class RestaurantControllerSpringTest(
         client.get().uri("/restomizer/v1/restaurants/").exchange()
             .expectBody()
             .jsonPath("$..name").value(containsInAnyOrder("test-1", "test-2", "test-3"))
-            .jsonPath("$..id").value(containsInAnyOrder(restaurant1.getId(), restaurant2.getId(), restaurant3.getId()))
-        client.get().uri("/restomizer/v1/restaurants/${restaurant2.getId()}").exchange()
+            .jsonPath("$..id").value(containsInAnyOrder(restaurant1.id, restaurant2.id, restaurant3.id))
+        client.get().uri("/restomizer/v1/restaurants/${restaurant2.id}").exchange()
             .expectBody()
             .jsonPath("$.name").isEqualTo("test-2")
             .jsonPath("$.id").isEqualTo("test-2-id")

@@ -27,7 +27,7 @@ class RestaurantService @Autowired constructor(
         return restaurantRepository.findById(id)
     }
 
-    fun save(restaurant: Restaurant): Restaurant {
+    suspend fun save(restaurant: Restaurant): Restaurant {
         return restaurantRepository.save(restaurant)
     }
 }

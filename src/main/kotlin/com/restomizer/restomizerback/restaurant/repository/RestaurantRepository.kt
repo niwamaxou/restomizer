@@ -7,5 +7,5 @@ interface RestaurantRepository {
 
     fun findAll(): Flow<Restaurant>
     suspend fun findById(id: String): Restaurant
-    fun save(restaurant: Restaurant): Restaurant
+    suspend fun save(restaurant: Restaurant): Restaurant
 }

@@ -4,12 +4,14 @@ import com.restomizer.restomizerback.restaurant.exception.RestomizerNotFoundExce
 import com.restomizer.restomizerback.restaurant.model.Restaurant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 
 @Service
+@Profile("test")
 class RestaurantHashMapRepositoryImpl : RestaurantRepository {
 
-    private val restaurantMap: HashMap<String, Restaurant> = HashMap<String, Restaurant>()
+    private val restaurantMap: HashMap<String, Restaurant> = HashMap()
 
     override fun findAll(): Flow<Restaurant> {
         return flow {
@@ -23,9 +25,9 @@ class RestaurantHashMapRepositoryImpl : RestaurantRepository {
         return restaurantMap[id] ?: throw RestomizerNotFoundException("No restaurant found with id [$id]")
     }
     
-    override fun save(restaurant: Restaurant): Restaurant {
-        restaurant.generateId()
-        restaurantMap[restaurant.getId()] = restaurant
-        return restaurant
+    override suspend fun save(restaurant: Restaurant): Restaurant {
+        val toSaveRestaurant = Restaurant("${restaurant.name}-id", restaurant.name)
+        restaurantMap[toSaveRestaurant.id!!] = toSaveRestaurant
+        return toSaveRestaurant
     }
 }

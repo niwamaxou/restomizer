@@ -20,7 +20,7 @@ class RestaurantController @Autowired constructor(
     suspend fun findById(@PathVariable id: String): Restaurant = restaurantService.findById(id)
 
     @PostMapping("/restaurants")
-    fun save(@RequestBody restaurant: Restaurant): ResponseEntity<Restaurant> {
+    suspend fun save(@RequestBody restaurant: Restaurant): ResponseEntity<Restaurant> {
         return ResponseEntity.ok(restaurantService.save(restaurant))
     }
 

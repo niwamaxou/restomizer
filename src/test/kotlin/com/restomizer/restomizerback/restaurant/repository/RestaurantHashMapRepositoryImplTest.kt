@@ -2,8 +2,6 @@ package com.restomizer.restomizerback.restaurant.repository
 
 import com.restomizer.restomizerback.restaurant.exception.RestomizerNotFoundException
 import com.restomizer.restomizerback.restaurant.model.Restaurant
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
@@ -14,20 +12,20 @@ internal class RestaurantHashMapRepositoryImplTest {
     @Test
     fun `should save a restaurant and find it`() {
         val restaurantHashMapRepository = RestaurantHashMapRepositoryImpl()
-        val restaurant = Restaurant("test-1")
-        restaurantHashMapRepository.save(restaurant)
+        val restaurant = Restaurant(name = "test-1")
         runBlocking {
-        val flowRestaurantExpected = restaurantHashMapRepository.findById("test-1-id")
-                assertThat(flowRestaurantExpected).isEqualTo(restaurant)
+            val savedRestaurant = restaurantHashMapRepository.save(restaurant)
+            val flowRestaurantExpected = restaurantHashMapRepository.findById("test-1-id")
+            assertThat(flowRestaurantExpected).isEqualTo(savedRestaurant)
         }
     }
 
     @Test
     fun `should throw notFoundException if no restaurant is found`() {
         val restaurantHashMapRepository = RestaurantHashMapRepositoryImpl()
-        val restaurant = Restaurant("test-1")
-        restaurantHashMapRepository.save(restaurant)
+        val restaurant = Restaurant(name = "test-1")
         runBlocking {
+            restaurantHashMapRepository.save(restaurant)
             try {
                 restaurantHashMapRepository.findById("invalid-id")
             } catch (restomizerNotFoundException: RestomizerNotFoundException) {
@@ -39,13 +37,13 @@ internal class RestaurantHashMapRepositoryImplTest {
     @Test
     fun `should find all restaurant`() {
         val restaurantHashMapRepository = RestaurantHashMapRepositoryImpl()
-        val restaurant1 = Restaurant("test-1")
-        val restaurant2 = Restaurant("test-2")
-        val restaurant3 = Restaurant("test-3")
-        restaurantHashMapRepository.save(restaurant1)
-        restaurantHashMapRepository.save(restaurant2)
-        restaurantHashMapRepository.save(restaurant3)
+        val restaurant1 = Restaurant(name = "test-1")
+        val restaurant2 = Restaurant(name = "test-2")
+        val restaurant3 = Restaurant(name = "test-3")
         runBlocking {
+            restaurantHashMapRepository.save(restaurant1)
+            restaurantHashMapRepository.save(restaurant2)
+            restaurantHashMapRepository.save(restaurant3)
             val flowRestaurantsExpected = restaurantHashMapRepository.findAll().toList()
             assertThat(flowRestaurantsExpected).extracting("name").containsExactlyInAnyOrder("test-1", "test-2", "test-3")
         }

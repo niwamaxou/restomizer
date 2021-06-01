@@ -34,7 +34,7 @@ internal class RestaurantControllerAbstractedTest {
         runBlocking {
             val restaurant = restaurantController.findById("test-1-id")
             assertThat(restaurant.name).isEqualTo("test-1")
-            assertThat(restaurant.getId()).isEqualTo("test-1-id")
+            assertThat(restaurant.id).isEqualTo("test-1-id")
         }
     }
 
@@ -53,10 +53,13 @@ internal class RestaurantControllerAbstractedTest {
     @Test
     fun `should save a restaurant`() {
         val stubRestaurantRepositoryImpl = StubRestaurantRepositoryImpl()
-        val restaurant = Restaurant("test-saved")
+        val restaurant = Restaurant("test-saved-id", "test-saved")
         val restaurantController = RestaurantController(RestaurantService(stubRestaurantRepositoryImpl, StubRandomizerServiceImpl()))
-        val savedRestaurant = restaurantController.save(restaurant)
-        assertThat(savedRestaurant.body!!.name).isEqualTo("test-saved")
+        runBlocking {
+            val savedRestaurant = restaurantController.save(restaurant)
+            assertThat(savedRestaurant.body!!.name).isEqualTo("test-saved")
+            assertThat(savedRestaurant.body!!.id).isEqualTo("test-saved-id")
+        }
     }
 
     @Test
@@ -65,7 +68,7 @@ internal class RestaurantControllerAbstractedTest {
         runBlocking {
             val flowRestaurantExpected = restaurantController.getOneRandomRestaurant()
             assertThat(flowRestaurantExpected.name).isEqualTo("test-2")
-            assertThat(flowRestaurantExpected.getId()).isEqualTo("test-2-id")
+            assertThat(flowRestaurantExpected.id).isEqualTo("test-2-id")
         }
     }
 
@@ -81,12 +84,9 @@ internal class RestaurantControllerAbstractedTest {
         private val restaurantSortedMap: SortedMap<String, Restaurant>
 
         init {
-            val restaurant1 = Restaurant("test-1")
-            restaurant1.generateId()
-            val restaurant2 = Restaurant("test-2")
-            restaurant2.generateId()
-            val restaurant3 = Restaurant("test-3")
-            restaurant3.generateId()
+            val restaurant1 = Restaurant("test-1-id", "test-1")
+            val restaurant2 = Restaurant("test-2-id", "test-2")
+            val restaurant3 = Restaurant("test-3-id", "test-3")
             restaurantMap["test-1-id"] = restaurant1
             restaurantMap["test-2-id"] = restaurant2
             restaurantMap["test-3-id"] = restaurant3
@@ -104,7 +104,7 @@ internal class RestaurantControllerAbstractedTest {
             return restaurantSortedMap[id] ?: throw RestomizerNotFoundException("No restaurant found with id [$id]")
         }
 
-        override fun save(restaurant: Restaurant): Restaurant {
+        override suspend fun save(restaurant: Restaurant): Restaurant {
             return restaurant
         }
     }
