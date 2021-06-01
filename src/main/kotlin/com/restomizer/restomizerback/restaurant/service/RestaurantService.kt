@@ -3,6 +3,7 @@ package com.restomizer.restomizerback.restaurant.service
 import com.restomizer.restomizerback.restaurant.model.Restaurant
 import com.restomizer.restomizerback.restaurant.repository.RestaurantRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.transform
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -13,19 +14,17 @@ class RestaurantService @Autowired constructor(
     val randomizerService: RandomizerService
 ) {
 
-    fun getOneRandomRestaurant(): Flow<Restaurant> {
-        val allRestaurants = restaurantRepository.findAll()
-        return allRestaurants.transform { ar ->
-            emit(ar[randomizerService.getRandomNumberUntil(ar.size)])
-        }
+    suspend fun getOneRandomRestaurant(): Restaurant {
+        val allRestaurants = restaurantRepository.findAll().toList()
+        return allRestaurants[randomizerService.getRandomNumberUntil(allRestaurants.size)]
     }
 
-    fun findAll(): Flow<List<Restaurant>> {
+    fun findAll(): Flow<Restaurant> {
         return restaurantRepository.findAll()
     }
 
-    fun findOne(id: String): Flow<Restaurant> {
-        return restaurantRepository.findOne(id)
+    suspend fun findById(id: String): Restaurant {
+        return restaurantRepository.findById(id)
     }
 
     fun save(restaurant: Restaurant): Restaurant {

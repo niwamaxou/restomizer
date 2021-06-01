@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface RestaurantRepository {
 
-    fun findAll(): Flow<List<Restaurant>>
-    fun findOne(id: String): Flow<Restaurant>
+    fun findAll(): Flow<Restaurant>
+    suspend fun findById(id: String): Restaurant
     fun save(restaurant: Restaurant): Restaurant
 }

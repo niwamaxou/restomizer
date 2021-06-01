@@ -11,19 +11,18 @@ class RestaurantHashMapRepositoryImpl : RestaurantRepository {
 
     private val restaurantMap: HashMap<String, Restaurant> = HashMap<String, Restaurant>()
 
-    override fun findAll(): Flow<List<Restaurant>> {
+    override fun findAll(): Flow<Restaurant> {
         return flow {
-            emit(restaurantMap.values.toList())
+            for (restaurant in restaurantMap.values) {
+                emit(restaurant)
+            }
         }
     }
 
-    override fun findOne(id: String): Flow<Restaurant> {
-        return flow {
-            val restaurant = restaurantMap[id] ?: throw RestomizerNotFoundException("No restaurant found with id [$id]")
-            emit(restaurant)
-        }
+    override suspend fun findById(id: String): Restaurant {
+        return restaurantMap[id] ?: throw RestomizerNotFoundException("No restaurant found with id [$id]")
     }
-
+    
     override fun save(restaurant: Restaurant): Restaurant {
         restaurant.generateId()
         restaurantMap[restaurant.getId()] = restaurant

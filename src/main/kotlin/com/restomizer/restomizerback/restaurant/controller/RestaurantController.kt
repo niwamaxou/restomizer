@@ -14,10 +14,10 @@ class RestaurantController @Autowired constructor(
 ) {
 
     @GetMapping("/restaurants")
-    fun findAll(): Flow<List<Restaurant>> = restaurantService.findAll()
+    fun findAll(): Flow<Restaurant> = restaurantService.findAll()
 
     @GetMapping("/restaurants/{id}")
-    fun findOne(@PathVariable id: String): Flow<Restaurant> = restaurantService.findOne(id)
+    suspend fun findById(@PathVariable id: String): Restaurant = restaurantService.findById(id)
 
     @PostMapping("/restaurants")
     fun save(@RequestBody restaurant: Restaurant): ResponseEntity<Restaurant> {
@@ -25,5 +25,5 @@ class RestaurantController @Autowired constructor(
     }
 
     @GetMapping("/random/restaurants")
-    fun getOneRandomRestaurant(): Flow<Restaurant> = restaurantService.getOneRandomRestaurant()
+    suspend fun getOneRandomRestaurant(): Restaurant = restaurantService.getOneRandomRestaurant()
 }

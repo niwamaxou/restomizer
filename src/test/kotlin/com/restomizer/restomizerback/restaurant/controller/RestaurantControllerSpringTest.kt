@@ -54,9 +54,8 @@ internal class RestaurantControllerSpringTest(
             .jsonPath("$..id").value(containsInAnyOrder(restaurant1.getId(), restaurant2.getId(), restaurant3.getId()))
         client.get().uri("/restomizer/v1/restaurants/${restaurant2.getId()}").exchange()
             .expectBody()
-            .jsonPath("$.length()").isEqualTo(1)
-            .jsonPath("$[0].name").isEqualTo("test-2")
-            .jsonPath("$[0].id").isEqualTo("test-2-id")
+            .jsonPath("$.name").isEqualTo("test-2")
+            .jsonPath("$.id").isEqualTo("test-2-id")
         val returnResult = client.get().uri("/restomizer/v1/random/restaurants").exchange()
             .expectStatus().isOk
             .returnResult(Restaurant::class.java)

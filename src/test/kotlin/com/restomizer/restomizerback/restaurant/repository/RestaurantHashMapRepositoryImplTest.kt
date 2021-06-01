@@ -4,6 +4,7 @@ import com.restomizer.restomizerback.restaurant.exception.RestomizerNotFoundExce
 import com.restomizer.restomizerback.restaurant.model.Restaurant
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -15,11 +16,9 @@ internal class RestaurantHashMapRepositoryImplTest {
         val restaurantHashMapRepository = RestaurantHashMapRepositoryImpl()
         val restaurant = Restaurant("test-1")
         restaurantHashMapRepository.save(restaurant)
-        val flowRestaurantExpected = restaurantHashMapRepository.findOne("test-1-id")
         runBlocking {
-            flowRestaurantExpected.collect { r ->
-                assertThat(r).isEqualTo(restaurant)
-            }
+        val flowRestaurantExpected = restaurantHashMapRepository.findById("test-1-id")
+                assertThat(flowRestaurantExpected).isEqualTo(restaurant)
         }
     }
 
@@ -28,14 +27,12 @@ internal class RestaurantHashMapRepositoryImplTest {
         val restaurantHashMapRepository = RestaurantHashMapRepositoryImpl()
         val restaurant = Restaurant("test-1")
         restaurantHashMapRepository.save(restaurant)
-        val flowShouldThrowAnException = restaurantHashMapRepository.findOne("fake-id")
         runBlocking {
-            flowShouldThrowAnException
-                .catch { e ->
-                    assertThat(e)
-                        .isInstanceOf(RestomizerNotFoundException::class.java)
-                        .hasMessage("No restaurant found with id [fake-id]")
-                }
+            try {
+                restaurantHashMapRepository.findById("invalid-id")
+            } catch (restomizerNotFoundException: RestomizerNotFoundException) {
+                assertThat(restomizerNotFoundException.message).isEqualTo("No restaurant found with id [invalid-id]")
+            }
         }
     }
 
@@ -48,12 +45,9 @@ internal class RestaurantHashMapRepositoryImplTest {
         restaurantHashMapRepository.save(restaurant1)
         restaurantHashMapRepository.save(restaurant2)
         restaurantHashMapRepository.save(restaurant3)
-        val flowRestaurantsExpected = restaurantHashMapRepository.findAll()
         runBlocking {
-            flowRestaurantsExpected.collect { lr ->
-                assertThat(lr).extracting("name")
-                    .contains("test-1", "test-2", "test-3")
-            }
+            val flowRestaurantsExpected = restaurantHashMapRepository.findAll().toList()
+            assertThat(flowRestaurantsExpected).extracting("name").containsExactlyInAnyOrder("test-1", "test-2", "test-3")
         }
     }
 }

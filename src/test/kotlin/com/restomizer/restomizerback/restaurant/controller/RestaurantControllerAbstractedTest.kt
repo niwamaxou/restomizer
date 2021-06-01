@@ -6,7 +6,6 @@ import com.restomizer.restomizerback.restaurant.repository.RestaurantRepository
 import com.restomizer.restomizerback.restaurant.service.RandomizerService
 import com.restomizer.restomizerback.restaurant.service.RestaurantService
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
@@ -20,10 +19,10 @@ internal class RestaurantControllerAbstractedTest {
     fun `should get the restaurants`() {
         val restaurantController = RestaurantController(RestaurantService(StubRestaurantRepositoryImpl(), StubRandomizerServiceImpl()))
         val restaurants = restaurantController.findAll()
+        var i = 1
         runBlocking {
-            restaurants.collect { lr ->
-                assertThat(lr).extracting("name")
-                    .contains("test-1", "test-2", "test-3")
+            restaurants.collect { r ->
+                assertThat(r.name).isEqualTo("test-${i++}")
             }
         }
     }
@@ -32,24 +31,21 @@ internal class RestaurantControllerAbstractedTest {
     fun `should get one restaurant`() {
         val stubRestaurantRepositoryImpl = StubRestaurantRepositoryImpl()
         val restaurantController = RestaurantController(RestaurantService(stubRestaurantRepositoryImpl, StubRandomizerServiceImpl()))
-        val flowRestaurant = restaurantController.findOne("test-1-id")
         runBlocking {
-            flowRestaurant.collect { r ->
-                assertThat(r.name).isEqualTo("test-1")
-                assertThat(r.getId()).isEqualTo("test-1-id")
-            }
+            val restaurant = restaurantController.findById("test-1-id")
+            assertThat(restaurant.name).isEqualTo("test-1")
+            assertThat(restaurant.getId()).isEqualTo("test-1-id")
         }
     }
 
     @Test
     fun `should throw an exception when restaurant isn't in base`() {
         val restaurantController = RestaurantController(RestaurantService(StubRestaurantRepositoryImpl(), StubRandomizerServiceImpl()))
-        val flowRestaurant = restaurantController.findOne("invalid-id")
         runBlocking {
-            flowRestaurant.catch { e ->
-                assertThat(e)
-                    .isInstanceOf(RestomizerNotFoundException::class.java)
-                    .hasMessage("No restaurant found with id [invalid-id]")
+            try {
+                restaurantController.findById("invalid-id")
+            } catch (restomizerNotFoundException: RestomizerNotFoundException) {
+                assertThat(restomizerNotFoundException.message).isEqualTo("No restaurant found with id [invalid-id]")
             }
         }
     }
@@ -66,12 +62,10 @@ internal class RestaurantControllerAbstractedTest {
     @Test
     fun `should get a random restaurant`() {
         val restaurantController = RestaurantController(RestaurantService(StubRestaurantRepositoryImpl(), StubRandomizerServiceImpl()))
-        val flowRestaurantExpected = restaurantController.getOneRandomRestaurant()
         runBlocking {
-            flowRestaurantExpected.collect { r ->
-                assertThat(r.name).isEqualTo("test-2")
-                assertThat(r.getId()).isEqualTo("test-2-id")
-            }
+            val flowRestaurantExpected = restaurantController.getOneRandomRestaurant()
+            assertThat(flowRestaurantExpected.name).isEqualTo("test-2")
+            assertThat(flowRestaurantExpected.getId()).isEqualTo("test-2-id")
         }
     }
 
@@ -99,17 +93,15 @@ internal class RestaurantControllerAbstractedTest {
             restaurantSortedMap = restaurantMap.toSortedMap()
         }
 
-        override fun findAll(): Flow<List<Restaurant>> {
+        override fun findAll(): Flow<Restaurant> {
             return flow {
-                emit(restaurantSortedMap.values.toList())
+                for (restaurant in restaurantSortedMap.values)
+                    emit(restaurant)
             }
         }
 
-        override fun findOne(id: String): Flow<Restaurant> {
-            return flow {
-                val restaurant = restaurantSortedMap[id] ?: throw RestomizerNotFoundException("No restaurant found with id [$id]")
-                emit(restaurant)
-            }
+        override suspend fun findById(id: String): Restaurant {
+            return restaurantSortedMap[id] ?: throw RestomizerNotFoundException("No restaurant found with id [$id]")
         }
 
         override fun save(restaurant: Restaurant): Restaurant {
