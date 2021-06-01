@@ -2,9 +2,10 @@ package com.restomizer.restomizerback.restaurant.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.restomizer.restomizerback.restaurant.model.Restaurant
-import com.restomizer.restomizerback.restaurant.repository.RestaurantHashMapRepositoryImpl
+import com.restomizer.restomizerback.restaurant.repository.RestaurantCosmosDbRepository
 import com.restomizer.restomizerback.restaurant.service.RandomizerServiceImpl
 import com.restomizer.restomizerback.restaurant.service.RestaurantService
+import com.restomizer.restomizerback.restaurant.utils.MockRestaurantSpringRepositoryImpl
 import kotlinx.coroutines.reactive.collect
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
@@ -26,7 +27,7 @@ import reactor.core.publisher.Mono
     value = [
         RestaurantService::class,
         RandomizerServiceImpl::class,
-        RestaurantHashMapRepositoryImpl::class
+        MockRestaurantSpringRepositoryImpl::class
     ]
 )
 @ActiveProfiles("test")
@@ -57,7 +58,7 @@ internal class RestaurantControllerSpringTest(
         client.get().uri("/restomizer/v1/restaurants/${restaurant2.id}").exchange()
             .expectBody()
             .jsonPath("$.name").isEqualTo("test-2")
-            .jsonPath("$.id").isEqualTo("test-2-id")
+            .jsonPath("$.id").isEqualTo(restaurant2.id!!)
         val returnResult = client.get().uri("/restomizer/v1/random/restaurants").exchange()
             .expectStatus().isOk
             .returnResult(Restaurant::class.java)

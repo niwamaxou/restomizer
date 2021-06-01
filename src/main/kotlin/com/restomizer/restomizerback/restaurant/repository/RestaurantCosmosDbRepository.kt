@@ -10,8 +10,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoOperations
 import org.springframework.data.mongodb.core.findAll
 import org.springframework.stereotype.Service
 
-@Service
-@Profile("cosmos-db")
+
 class RestaurantCosmosDbRepository @Autowired constructor(val operations: ReactiveMongoOperations): RestaurantRepository {
     
     override fun findAll(): Flow<Restaurant> {
