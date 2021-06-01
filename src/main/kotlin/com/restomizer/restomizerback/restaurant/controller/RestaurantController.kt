@@ -4,6 +4,7 @@ import com.restomizer.restomizerback.restaurant.model.Restaurant
 import com.restomizer.restomizerback.restaurant.service.RestaurantService
 import kotlinx.coroutines.flow.Flow
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -19,7 +20,9 @@ class RestaurantController @Autowired constructor(
     fun findOne(@PathVariable id: String): Flow<Restaurant> = restaurantService.findOne(id)
 
     @PostMapping("/restaurants")
-    fun save(@RequestBody restaurant: Restaurant) = restaurantService.save(restaurant)
+    fun save(@RequestBody restaurant: Restaurant): ResponseEntity<Restaurant> {
+        return ResponseEntity.ok(restaurantService.save(restaurant))
+    }
 
     @GetMapping("/random/restaurants")
     fun getOneRandomRestaurant(): Flow<Restaurant> = restaurantService.getOneRandomRestaurant()

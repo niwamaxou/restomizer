@@ -3,12 +3,11 @@ package com.restomizer.restomizerback.restaurant.controller
 import com.restomizer.restomizerback.restaurant.exception.RestomizerException
 import com.restomizer.restomizerback.restaurant.exception.RestomizerNotFoundException
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
 
 internal class ControllerErrorHandlerTest {
-    
+
     @Test
     fun `should return with not found`() {
         val controllerErrorHandler = ControllerErrorHandler()

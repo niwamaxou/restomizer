@@ -13,7 +13,6 @@ import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.util.*
-import kotlin.collections.HashMap
 
 internal class RestaurantControllerAbstractedTest {
 
@@ -60,9 +59,8 @@ internal class RestaurantControllerAbstractedTest {
         val stubRestaurantRepositoryImpl = StubRestaurantRepositoryImpl()
         val restaurant = Restaurant("test-saved")
         val restaurantController = RestaurantController(RestaurantService(stubRestaurantRepositoryImpl, StubRandomizerServiceImpl()))
-        restaurantController.save(restaurant)
-        val savedRestaurant = stubRestaurantRepositoryImpl.getSavedRestaurant()
-        assertThat(savedRestaurant.name).isEqualTo("test-saved")
+        val savedRestaurant = restaurantController.save(restaurant)
+        assertThat(savedRestaurant.body!!.name).isEqualTo("test-saved")
     }
 
     @Test
@@ -87,8 +85,7 @@ internal class RestaurantControllerAbstractedTest {
 
         private val restaurantMap: HashMap<String, Restaurant> = HashMap<String, Restaurant>()
         private val restaurantSortedMap: SortedMap<String, Restaurant>
-        private var savedRestaurant : Restaurant? = null
-        
+
         init {
             val restaurant1 = Restaurant("test-1")
             restaurant1.generateId()
@@ -116,12 +113,7 @@ internal class RestaurantControllerAbstractedTest {
         }
 
         override fun save(restaurant: Restaurant): Restaurant {
-            this.savedRestaurant = restaurant
             return restaurant
-        }
-
-        fun getSavedRestaurant(): Restaurant {
-            return this.savedRestaurant!!
         }
     }
 }

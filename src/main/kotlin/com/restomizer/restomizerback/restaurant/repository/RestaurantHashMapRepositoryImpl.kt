@@ -4,11 +4,9 @@ import com.restomizer.restomizerback.restaurant.exception.RestomizerNotFoundExce
 import com.restomizer.restomizerback.restaurant.model.Restaurant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 
 @Service
-@Profile("!test")
 class RestaurantHashMapRepositoryImpl : RestaurantRepository {
 
     private val restaurantMap: HashMap<String, Restaurant> = HashMap<String, Restaurant>()
