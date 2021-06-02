@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.net.URI
 
 @RestController
 @RequestMapping("/restomizer/v1")
@@ -21,7 +22,8 @@ class RestaurantController @Autowired constructor(
 
     @PostMapping("/restaurants")
     suspend fun save(@RequestBody restaurant: Restaurant): ResponseEntity<Restaurant> {
-        return ResponseEntity.ok(restaurantService.save(restaurant))
+        val savedRestaurant = restaurantService.save(restaurant)
+        return ResponseEntity.created(URI("/restomizer/v1/restaurants/${savedRestaurant.id}")).body(savedRestaurant)
     }
 
     @GetMapping("/random/restaurants")

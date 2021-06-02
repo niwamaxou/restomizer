@@ -3,8 +3,6 @@ package com.restomizer.restomizerback.restaurant.utils
 import com.restomizer.restomizerback.restaurant.exception.RestomizerNotFoundException
 import com.restomizer.restomizerback.restaurant.model.Restaurant
 import com.restomizer.restomizerback.restaurant.repository.RestaurantSpringRepository
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import org.reactivestreams.Publisher
 import org.springframework.context.annotation.Profile
 import org.springframework.data.domain.Example
@@ -18,8 +16,17 @@ import reactor.core.publisher.Mono
 class MockRestaurantSpringRepositoryImpl : RestaurantSpringRepository {
 
     private val restaurantMap: HashMap<String, Restaurant> = HashMap()
-    
+    private var doThrowException: Boolean = false
+
+    fun doThrowAnExceptionWhenSave() {
+        doThrowException = true
+    }
+
     override fun <S : Restaurant?> save(p0: S): Mono<S> {
+        if (doThrowException) {
+            doThrowException = false
+            throw Exception()
+        }
         val toSaveRestaurant = Restaurant("${p0!!.name}-id", p0.name)
         restaurantMap[toSaveRestaurant.id!!] = toSaveRestaurant
         return Mono.just(toSaveRestaurant as S)

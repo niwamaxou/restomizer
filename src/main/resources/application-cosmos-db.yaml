@@ -6,7 +6,7 @@ management:
       exposure:
         include: "*"
 spring:
-    data:
-      mongodb:
-        database: ${cosmos-db-name}
-        uri: ${cosmos-db-connectionstring}
+  data:
+    mongodb:
+      database: ${cosmos-db-name}
+      uri: ${cosmos-db-connectionstring}

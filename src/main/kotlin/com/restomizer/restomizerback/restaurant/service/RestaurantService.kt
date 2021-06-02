@@ -1,11 +1,9 @@
 package com.restomizer.restomizerback.restaurant.service
 
 import com.restomizer.restomizerback.restaurant.model.Restaurant
-import com.restomizer.restomizerback.restaurant.repository.RestaurantRepository
 import com.restomizer.restomizerback.restaurant.repository.RestaurantSpringRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.beans.factory.annotation.Autowired

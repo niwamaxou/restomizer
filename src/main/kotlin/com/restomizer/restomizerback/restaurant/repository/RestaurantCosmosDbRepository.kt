@@ -5,14 +5,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.Profile
 import org.springframework.data.mongodb.core.ReactiveMongoOperations
 import org.springframework.data.mongodb.core.findAll
 import org.springframework.stereotype.Service
 
+@Service
+class RestaurantCosmosDbRepository @Autowired constructor(val operations: ReactiveMongoOperations) : RestaurantRepository {
 
-class RestaurantCosmosDbRepository @Autowired constructor(val operations: ReactiveMongoOperations): RestaurantRepository {
-    
     override fun findAll(): Flow<Restaurant> {
         return operations.findAll<Restaurant>().asFlow()
     }

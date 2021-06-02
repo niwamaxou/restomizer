@@ -2,20 +2,17 @@ package com.restomizer.restomizerback.restaurant.controller
 
 import com.restomizer.restomizerback.restaurant.exception.RestomizerNotFoundException
 import com.restomizer.restomizerback.restaurant.model.Restaurant
-import com.restomizer.restomizerback.restaurant.repository.RestaurantRepository
 import com.restomizer.restomizerback.restaurant.repository.RestaurantSpringRepository
 import com.restomizer.restomizerback.restaurant.service.RandomizerService
 import com.restomizer.restomizerback.restaurant.service.RestaurantService
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.reactivestreams.Publisher
 import org.springframework.data.domain.Example
 import org.springframework.data.domain.Sort
+import org.springframework.http.HttpStatus
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.*
@@ -64,6 +61,8 @@ internal class RestaurantControllerAbstractedTest {
         val restaurantController = RestaurantController(RestaurantService(stubRestaurantRepositoryImpl, StubRandomizerServiceImpl()))
         runBlocking {
             val savedRestaurant = restaurantController.save(restaurant)
+            assertThat(savedRestaurant.statusCode).isEqualTo(HttpStatus.CREATED)
+            assertThat(savedRestaurant.headers["location"]!![0]).isEqualTo("/restomizer/v1/restaurants/test-saved-id")
             assertThat(savedRestaurant.body!!.name).isEqualTo("test-saved")
             assertThat(savedRestaurant.body!!.id).isEqualTo("test-saved-id")
         }
