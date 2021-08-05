@@ -21,6 +21,7 @@ class RestaurantService @Autowired constructor(
     }
 
     fun findAll(): Flow<Restaurant> {
+        println("findall")
         return restaurantRepository.findAll().asFlow()
     }
 

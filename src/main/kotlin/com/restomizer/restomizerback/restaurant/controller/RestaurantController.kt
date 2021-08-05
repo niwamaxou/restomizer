@@ -13,7 +13,7 @@ import java.net.URI
 class RestaurantController @Autowired constructor(
     val restaurantService: RestaurantService
 ) {
-
+    
     @GetMapping("/restaurants")
     fun findAll(): Flow<Restaurant> = restaurantService.findAll()
 
