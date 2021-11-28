@@ -1,4 +1,4 @@
-package com.restomizer.restomizerback.restaurant.controller
+package com.restomizer.restomizerback.config.controller
 
 import com.restomizer.restomizerback.restaurant.exception.RestomizerNotFoundException
 import org.springframework.http.HttpStatus
