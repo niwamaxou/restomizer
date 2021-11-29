@@ -8,10 +8,9 @@ import org.springframework.web.server.WebFilter
 import org.springframework.web.server.WebFilterChain
 import reactor.core.publisher.Mono
 
-//@Component
+@Component
 class CorsFilter : WebFilter {
     override fun filter(ctx: ServerWebExchange, chain: WebFilterChain): Mono<Void> {
-        println("filter")
         return run {
             ctx.response.headers.add("Access-Control-Allow-Origin", "http://localhost:8081")
             ctx.response.headers.add("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS")
