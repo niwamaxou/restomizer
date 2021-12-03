@@ -1,9 +1,8 @@
-package com.restomizer.restomizerback.group.controller
+package com.restomizer.restomizerback.user.controller
 
-import com.restomizer.restomizerback.group.model.User
-import com.restomizer.restomizerback.group.repository.GroupRepository
-import com.restomizer.restomizerback.group.service.GroupService
-import com.restomizer.restomizerback.restaurant.repository.RestaurantSpringRepository
+import com.restomizer.restomizerback.user.model.User
+import com.restomizer.restomizerback.user.repository.UserRepository
+import com.restomizer.restomizerback.user.service.UserService
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -13,11 +12,11 @@ import org.springframework.data.domain.Sort
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
-internal class GroupControllerTest {
+internal class UserControllerTest {
     
     @Test
     fun `should add a user to the default group`() {
-        val groupController = GroupController(GroupService(StubGroupRepositoryImpl()))
+        val groupController = UserController(UserService(StubUserRepositoryImpl()))
         runBlocking {
             val responseEntity = groupController.subscribe(User(null, "username"))
             assertThat(responseEntity.statusCodeValue).isEqualTo(200)
@@ -25,7 +24,7 @@ internal class GroupControllerTest {
         }
     }
 
-    class StubGroupRepositoryImpl : GroupRepository {
+    class StubUserRepositoryImpl : UserRepository {
         override fun <S : User?> save(entity: S): Mono<S> {
 
             val user = User("id", entity!!.name) as S
