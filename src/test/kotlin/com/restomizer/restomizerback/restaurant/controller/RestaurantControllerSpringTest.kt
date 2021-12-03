@@ -40,32 +40,26 @@ internal class RestaurantControllerSpringTest @Autowired constructor(
             .body(Mono.just(Restaurant(name = "test-1")), Restaurant::class.java)
             .exchange()
             .expectStatus().isCreated
-            .expectHeader().valueEquals("Access-Control-Allow-Origin", "http://localhost:8081")
             .expectHeader().location("/restomizer/v1/restaurants/test-1-id")
         client.post().uri("/restomizer/v1/restaurants/")
             .body(Mono.just(Restaurant(name = "test-2")), Restaurant::class.java)
             .exchange()
             .expectStatus().isCreated
-            .expectHeader().valueEquals("Access-Control-Allow-Origin", "http://localhost:8081")
             .expectHeader().location("/restomizer/v1/restaurants/test-2-id")
         client.post().uri("/restomizer/v1/restaurants/")
             .body(Mono.just(Restaurant(name = "test-3")), Restaurant::class.java)
             .exchange()
             .expectStatus().isCreated
-            .expectHeader().valueEquals("Access-Control-Allow-Origin", "http://localhost:8081")
             .expectHeader().location("/restomizer/v1/restaurants/test-3-id")
         client.get().uri("/restomizer/v1/restaurants/").exchange()
-            .expectHeader().valueEquals("Access-Control-Allow-Origin", "http://localhost:8081")
             .expectBody()
             .jsonPath("$..name").value(containsInAnyOrder("test-1", "test-2", "test-3"))
             .jsonPath("$..id").value(containsInAnyOrder("test-1-id", "test-2-id", "test-3-id"))
         client.get().uri("/restomizer/v1/restaurants/test-2-id").exchange()
-            .expectHeader().valueEquals("Access-Control-Allow-Origin", "http://localhost:8081")
             .expectBody()
             .jsonPath("$.name").isEqualTo("test-2")
             .jsonPath("$.id").isEqualTo("test-2-id")
         val returnResult = client.get().uri("/restomizer/v1/random/restaurants").exchange()
-            .expectHeader().valueEquals("Access-Control-Allow-Origin", "http://localhost:8081")
             .expectStatus().isOk
             .returnResult(Restaurant::class.java)
         runBlocking {
