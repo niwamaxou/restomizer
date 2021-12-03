@@ -1,9 +1,8 @@
 package com.restomizer.restomizerback.group.service
 
-import org.springframework.stereotype.Service
+import com.restomizer.restomizerback.group.model.User
 
-@Service
-class GroupService {
-    
+interface GroupService {
 
+    suspend fun subscribe(user: User) : User
 }
